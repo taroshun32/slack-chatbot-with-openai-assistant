@@ -21,8 +21,12 @@ sequenceDiagram
     opt スレッドが実行中の場合
         Assistant-->>Slack: エラーメッセージ返却
     end
+    opt ファイルがある場合
+        Assistant->>Slack: ファイルダウンロード (SlackAPI)
+        Assistant->>OpenAI: ファイルアップロード
+    end
     Assistant->>OpenAI: スレッドにメッセージ追加
-    Assistant->>OpenAI: スレッドを実行 (Run)
+    Assistant-->>OpenAI: スレッドを実行 (Run)
     loop 実行完了まで5s毎にポーリング
         Assistant->>OpenAI: RunStatus 取得
         opt failed, cancelled, expired

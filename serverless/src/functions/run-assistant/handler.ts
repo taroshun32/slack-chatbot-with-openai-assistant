@@ -11,6 +11,9 @@ import { SSMContext }        from '@libs/types/context'
 import { RunAssistantEvent } from '@libs/types/event'
 import { AlreadyRunning }    from '@libs/types/error/already-running'
 
+import { downloadFileFromSlack }  from '@libs/download-file-from-slack'
+import { uploadFileToOpenAI }     from '@libs/upload-file-to-openai'
+
 
 const dynamodbClient = new DynamoDBClient()
 const documentClient = DynamoDBDocumentClient.from(dynamodbClient)
@@ -24,7 +27,7 @@ const handler: Handler = async (
   const slackClient = new WebClient(context.SLACK_BOT_TOKEN)
 
   try {
-    const replies = await chat(event, openai, context.OPENAI_ASSISTANT_ID)
+    const replies = await chat(event, slackClient, openai, context.OPENAI_ASSISTANT_ID)
     await postMessage(slackClient, event, replies)
   } catch (error) {
     if (error instanceof AlreadyRunning) {
@@ -59,6 +62,7 @@ async function postMessage(slackClient: WebClient, event: RunAssistantEvent, tex
  */
 export async function chat(
   event:       RunAssistantEvent,
+  slackClient: WebClient,
   openai:      OpenAI,
   assistantId: string
 ): Promise<string[]> {
@@ -69,9 +73,17 @@ export async function chat(
   const running = runs.data.find(run => run.status === 'in_progress')
   if (running) throw new AlreadyRunning(running)
 
+  const fileIds = await Promise.all(
+    event.fileIds.map(async fileId => {
+      const filePath = await downloadFileFromSlack(slackClient, fileId)
+      return uploadFileToOpenAI(openai, filePath)
+    })
+  )
+
   await openai.beta.threads.messages.create(thread.id, {
-    role:    'user',
-    content: event.text
+    role:     'user',
+    content:  event.text,
+    file_ids: fileIds
   })
 
   const run = await openai.beta.threads.runs.create(thread.id, {
@@ -97,7 +109,7 @@ export async function chat(
       }
     }
   }
-  return result
+  return result.reverse()
 }
 
 /**

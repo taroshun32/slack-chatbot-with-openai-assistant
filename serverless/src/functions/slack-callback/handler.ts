@@ -33,6 +33,7 @@ const handler: APIGatewayProxyHandler = async (
       const event: RunAssistantEvent = {
         channel:         request.event.channel,
         text:            request.event.text.replaceAll(/<@U[0-9A-Z]+>/g, ''), // メンションを削除
+        fileIds:         request.event.files?.map((file) => file.id) ?? [],
         ts:              request.event.ts,
         threadTs:        request.event.thread_ts,
         threadBroadcast: request.event.subtype === 'thread_broadcast'

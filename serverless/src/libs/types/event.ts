@@ -1,6 +1,7 @@
 // -- Lambda Event Types --
 export interface RunAssistantEvent {
   text:            string
+  fileIds:         string[]
   threadBroadcast: boolean
   channel:         string
   ts:              string
@@ -23,6 +24,7 @@ export interface SlackCallBackEvent {
     user:      string
     channel:   string
     text:      string
+    files?:    { id: string }[]
     ts:        string
     thread_ts: string
   }

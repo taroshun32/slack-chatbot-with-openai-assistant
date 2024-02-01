@@ -1,13 +1,13 @@
 # slack-chatbot-with-openai-assistant
-OpenAI AssistantAPI を利用した Slack チャットボット
+OpenAI AssistantsAPI を利用した Slack チャットボット
 
 ```mermaid
 sequenceDiagram
     participant Slack
-    participant Callback as SlackCallback<br>(Lambda)
-    participant Assistant as RunAssistant<br>(Lambda)
+    participant Callback as SlackCallback<br/>(Lambda)
+    participant Assistant as RunAssistant<br/>(Lambda)
     participant DynamoDB
-    participant OpenAI
+    participant OpenAI as OpenAI<br/>AssistantsAPI
 
     Slack->>Callback: メッセージ
     Callback-->>Assistant: 呼び出し (非同期)
@@ -33,6 +33,6 @@ sequenceDiagram
             Assistant-->>Slack: エラーメッセージ返却
         end
     end
-    Assistant->>OpenAI: GPT応答メッセージ取得
-    Assistant-->>Slack: メッセージ返却
+    Assistant->>OpenAI: 応答メッセージ取得
+    Assistant-->>Slack: 応答メッセージ返却
 ```

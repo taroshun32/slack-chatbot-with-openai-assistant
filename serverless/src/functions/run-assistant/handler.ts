@@ -60,7 +60,7 @@ async function postMessage(slackClient: WebClient, event: RunAssistantEvent, tex
 /**
  * AssistantAPI を実行する。
  */
-export async function run(
+async function run(
   event:       RunAssistantEvent,
   slackClient: WebClient,
   openai:      OpenAI,
@@ -103,9 +103,7 @@ export async function run(
           result.push(c.text.value)
           break
         case 'image_file':
-          result.push(
-            '画像の生成は未対応です。'
-          )
+          result.push('画像の生成は未対応です。')
       }
     }
   }

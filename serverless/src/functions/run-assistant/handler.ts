@@ -11,8 +11,8 @@ import { SSMContext }        from '@libs/types/context'
 import { RunAssistantEvent } from '@libs/types/event'
 import { AlreadyRunning }    from '@libs/types/error/already-running'
 
-import { downloadFileFromSlack }  from '@libs/download-file-from-slack'
-import { uploadFileToOpenAI }     from '@libs/upload-file-to-openai'
+import { downloadFileFromSlack } from '@libs/download-file-from-slack'
+import { uploadFileToOpenAI }    from '@libs/upload-file-to-openai'
 
 
 const dynamodbClient = new DynamoDBClient()
@@ -27,7 +27,7 @@ const handler: Handler = async (
   const slackClient = new WebClient(context.SLACK_BOT_TOKEN)
 
   try {
-    const replies = await chat(event, slackClient, openai, context.OPENAI_ASSISTANT_ID)
+    const replies = await run(event, slackClient, openai, context.OPENAI_ASSISTANT_ID)
     await postMessage(slackClient, event, replies)
   } catch (error) {
     if (error instanceof AlreadyRunning) {
@@ -58,9 +58,9 @@ async function postMessage(slackClient: WebClient, event: RunAssistantEvent, tex
 }
 
 /**
- * AssistantAPI を使用して Chat を構築する。
+ * AssistantAPI を実行する。
  */
-export async function chat(
+export async function run(
   event:       RunAssistantEvent,
   slackClient: WebClient,
   openai:      OpenAI,
